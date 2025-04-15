@@ -15,106 +15,96 @@
     <!-- Babel para JSX -->
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     
-    <!-- Revertimos a html2pdf original que es más confiable -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-    
     <!-- Estilos de impresión optimizados para móviles y escritorio -->
     <style type="text/css">
-        /* Forzar el fondo oscuro en todo el documento */
+        /* Estilos generales de impresión */
+        @page {
+            margin: 0 !important;
+            padding: 0 !important;
+            size: auto !important;
+        }
+        
         @media print {
-            @page {
-                size: portrait;
-                margin: 0;
-            }
-            
-            * {
+            /* Forzar color en todo el documento */
+            *, *:before, *:after {
                 -webkit-print-color-adjust: exact !important;
                 print-color-adjust: exact !important;
                 color-adjust: exact !important;
                 box-shadow: none !important;
+                background-color: #111827 !important;
             }
             
-            html {
-                background-color: #111827 !important;
-                min-height: 100% !important;
+            /* Elementos base */
+            html, body {
+                width: 100vw !important;
+                height: 100vh !important;
                 margin: 0 !important;
                 padding: 0 !important;
+                background-color: #111827 !important;
+                overflow: hidden !important;
             }
             
-            body {
-                background-color: #111827 !important;
-                min-height: 100% !important;
+            /* Contenedor raíz */
+            #root {
                 width: 100% !important;
+                height: 100% !important;
+                background-color: #111827 !important;
                 margin: 0 !important;
                 padding: 0 !important;
                 overflow: hidden !important;
-                position: absolute !important;
-                left: 0 !important;
-                top: 0 !important;
-                right: 0 !important;
-                bottom: 0 !important;
             }
             
-            /* Optimizaciones para condensar el contenido */
+            /* Calculadora */
             #calculadora-para-pdf {
-                padding: 3mm !important;
-                transform: scale(0.9) !important;
-                transform-origin: top center !important;
-                max-height: 100% !important;
-                overflow: visible !important;
-                page-break-inside: avoid !important;
                 background-color: #111827 !important;
-                box-shadow: none !important;
-                margin: 0 !important;
-                border: none !important;
-                width: 100% !important;
                 max-width: 100% !important;
-            }
-            
-            #root {
-                background-color: #111827 !important;
                 width: 100% !important;
-                margin: 0 !important;
-                padding: 0 !important;
+                border: none !important;
+                box-shadow: none !important;
+                padding: 3mm !important;
+                margin: 0 auto !important;
+                transform: scale(0.95) !important;
+                transform-origin: top center !important;
+                page-break-inside: avoid !important;
             }
             
+            /* Grid para columnas */
             .print-grid {
                 display: grid !important;
                 grid-template-columns: 1fr 1fr !important;
-                gap: 3mm !important;
+                gap: 2mm !important; 
             }
             
-            /* Reducción de tamaños y espaciados para móviles */
-            h1 { font-size: 18px !important; }
-            h2 { font-size: 16px !important; }
-            input { height: 28px !important; }
+            /* Espaciado */
+            .mt-4 { margin-top: 4mm !important; }
+            .mb-5 { margin-bottom: 5mm !important; }
+            .mb-3 { margin-bottom: 3mm !important; }
             
-            /* Colores forzados */
-            .bg-gray-900, .bg-gray-800, .bg-gray-700 {
-                background-color: #111827 !important;
-                border: 1px solid #374151 !important;
-            }
+            /* Colores y textos */
+            .text-emerald-400, h1 { color: #10B981 !important; }
+            .text-emerald-300, h2 { color: #6EE7B7 !important; }
+            .text-gray-300 { color: #D1D5DB !important; }
+            .text-gray-400 { color: #9CA3AF !important; }
+            .text-white { color: #ffffff !important; }
             
-            /* Texto */
-            .text-emerald-400 { color: #10B981 !important; }
-            .text-emerald-300 { color: #6EE7B7 !important; }
-            .text-gray-300, .text-gray-400, .text-white { color: white !important; }
+            /* Contenedores */
+            .bg-gray-900 { background-color: #111827 !important; }
+            .bg-gray-800 { background-color: #1F2937 !important; }
+            .bg-gray-700 { background-color: #374151 !important; }
             
-            /* Ocultar elementos no necesarios */
+            /* Ocultar elementos */
             button { display: none !important; }
         }
         
-        /* Estilos específicos para móviles */
+        /* Ajustes específicos para móviles */
         @media print and (max-width: 480px) {
             #calculadora-para-pdf {
-                transform: scale(0.8) !important;
+                transform: scale(0.85) !important;
                 padding: 2mm !important;
             }
             
-            .space-y-2 > * {
-                margin-top: 0 !important;
-                margin-bottom: 1mm !important;
-            }
+            h1 { font-size: 16px !important; }
+            h2 { font-size: 14px !important; }
         }
     </style>
 </head>
@@ -202,56 +192,36 @@
           
           // Función para imprimir usando el navegador
           const imprimirCalculadora = () => {
-            // Configuramos un Media Query para detectar si estamos en móvil
-            const esMobile = window.matchMedia('(max-width: 768px)').matches;
-            
-            // Añadimos fondo negro a toda la página temporalmente
+            // Aplicamos estilos al documento completo
             document.documentElement.style.backgroundColor = '#111827';
             document.body.style.backgroundColor = '#111827';
-            
-            // Quitamos todos los márgenes posibles
             document.body.style.margin = '0';
             document.body.style.padding = '0';
             
-            // Notificación para dispositivos móviles
-            if (esMobile) {
-              alert("Para evitar bordes blancos, selecciona 'Ajustar a página' o 'Contenido completo' en las opciones de impresión.");
-            }
+            // Creamos un elemento de estilo temporal para toda la página
+            const styleEl = document.createElement('style');
+            styleEl.innerHTML = `
+              @page { margin: 0; padding: 0; size: 100%; }
+              body, html { background-color: #111827 !important; padding: 0 !important; margin: 0 !important; }
+              * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+            `;
+            document.head.appendChild(styleEl);
             
             // Abrimos el diálogo de impresión
             window.print();
             
-            // Restauramos los estilos originales después de la impresión
+            // Eliminamos el elemento de estilo temporal y restauramos los estilos originales
             setTimeout(() => {
+              document.head.removeChild(styleEl);
               document.documentElement.style.backgroundColor = '';
               document.body.style.backgroundColor = '';
               document.body.style.margin = '';
               document.body.style.padding = '';
             }, 1000);
           };
-          
-          // Función muy simplificada para exportar a PDF
-          const exportarPDF = () => {
-            // Capturar el elemento
-            const elemento = document.getElementById('calculadora-para-pdf');
-            
-            // Notificación
-            alert('Generando PDF, por favor espere...');
-            
-            // Configuración mínima
-            const opciones = {
-              filename: `Calculadora_Euros_${new Date().toISOString().slice(0, 10)}.pdf`,
-              jsPDF: { format: 'letter', orientation: 'portrait' }
-            };
-            
-            // Usar la biblioteca sin opciones complejas
-            html2pdf().from(elemento).set(opciones).save();
-          };
 
           return (
             <div id="calculadora-para-pdf" className="flex flex-col items-center w-full max-w-4xl mx-auto p-6 bg-gray-900 rounded-lg shadow-xl print:p-2">
-              {/* Eliminamos los estilos de impresión que podrían estar causando problemas */}
-              
               <div className="w-full flex flex-col md:flex-row justify-between items-start md:items-center mb-5">
                 <h1 className="text-2xl font-bold text-emerald-400 mb-4 md:mb-0 md:mr-4">Calculadora de Billetes y Monedas</h1>
                 <div className="text-gray-400 text-right bg-gray-800 p-2 rounded-lg border border-gray-700">
