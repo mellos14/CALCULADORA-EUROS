@@ -20,7 +20,7 @@
     
     <!-- Estilos de impresión optimizados para móviles y escritorio -->
     <style type="text/css">
-        /* Estilos base para móviles y escritorio */
+        /* Forzar el fondo oscuro en todo el documento */
         @media print {
             @page {
                 size: portrait;
@@ -31,25 +31,51 @@
                 -webkit-print-color-adjust: exact !important;
                 print-color-adjust: exact !important;
                 color-adjust: exact !important;
+                box-shadow: none !important;
             }
             
-            html, body {
-                width: 100%;
-                height: 100%;
-                margin: 0;
-                padding: 0;
+            html {
                 background-color: #111827 !important;
+                min-height: 100% !important;
+                margin: 0 !important;
+                padding: 0 !important;
+            }
+            
+            body {
+                background-color: #111827 !important;
+                min-height: 100% !important;
+                width: 100% !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                overflow: hidden !important;
+                position: absolute !important;
+                left: 0 !important;
+                top: 0 !important;
+                right: 0 !important;
+                bottom: 0 !important;
             }
             
             /* Optimizaciones para condensar el contenido */
             #calculadora-para-pdf {
-                padding: 5mm !important;
+                padding: 3mm !important;
                 transform: scale(0.9) !important;
                 transform-origin: top center !important;
                 max-height: 100% !important;
                 overflow: visible !important;
                 page-break-inside: avoid !important;
                 background-color: #111827 !important;
+                box-shadow: none !important;
+                margin: 0 !important;
+                border: none !important;
+                width: 100% !important;
+                max-width: 100% !important;
+            }
+            
+            #root {
+                background-color: #111827 !important;
+                width: 100% !important;
+                margin: 0 !important;
+                padding: 0 !important;
             }
             
             .print-grid {
@@ -82,7 +108,7 @@
         @media print and (max-width: 480px) {
             #calculadora-para-pdf {
                 transform: scale(0.8) !important;
-                padding: 3mm !important;
+                padding: 2mm !important;
             }
             
             .space-y-2 > * {
@@ -179,13 +205,29 @@
             // Configuramos un Media Query para detectar si estamos en móvil
             const esMobile = window.matchMedia('(max-width: 768px)').matches;
             
+            // Añadimos fondo negro a toda la página temporalmente
+            document.documentElement.style.backgroundColor = '#111827';
+            document.body.style.backgroundColor = '#111827';
+            
+            // Quitamos todos los márgenes posibles
+            document.body.style.margin = '0';
+            document.body.style.padding = '0';
+            
             // Notificación para dispositivos móviles
             if (esMobile) {
-              alert("En dispositivos móviles, al imprimir selecciona 'Adaptarse' o 'Ajustar a página' en las opciones de impresión para evitar múltiples páginas.");
+              alert("Para evitar bordes blancos, selecciona 'Ajustar a página' o 'Contenido completo' en las opciones de impresión.");
             }
             
             // Abrimos el diálogo de impresión
             window.print();
+            
+            // Restauramos los estilos originales después de la impresión
+            setTimeout(() => {
+              document.documentElement.style.backgroundColor = '';
+              document.body.style.backgroundColor = '';
+              document.body.style.margin = '';
+              document.body.style.padding = '';
+            }, 1000);
           };
           
           // Función muy simplificada para exportar a PDF
