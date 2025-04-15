@@ -18,38 +18,60 @@
     <!-- Revertimos a html2pdf original que es más confiable -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     
-    <!-- Estilos de impresión -->
+    <!-- Estilos de impresión con colores preservados -->
     <style type="text/css">
         @media print {
             body {
-                background-color: white !important;
+                background-color: #111827 !important; /* Mismo color que bg-gray-900 */
                 padding: 0;
                 margin: 0;
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+                color-adjust: exact !important;
             }
             
             #calculadora-para-pdf {
-                background-color: white !important;
-                color: black !important;
+                background-color: #111827 !important; /* Mismo color que bg-gray-900 */
                 box-shadow: none !important;
-                border: none !important;
                 width: 100% !important;
                 max-width: 100% !important;
                 padding: 10mm !important;
                 margin: 0 !important;
             }
             
-            h1, h2 {
-                color: #333 !important;
-                border-color: #ddd !important;
+            h1 {
+                color: #10B981 !important; /* Color emerald-400 */
             }
             
-            .bg-gray-800, .bg-gray-700, .bg-gray-900 {
-                background-color: white !important;
-                border: 1px solid #ddd !important;
+            h2 {
+                color: #6EE7B7 !important; /* Color emerald-300 */
+                border-color: #374151 !important; /* Color gray-700 */
             }
             
-            .text-gray-300, .text-gray-400, .text-emerald-300, .text-emerald-400 {
-                color: #333 !important;
+            .bg-gray-800 {
+                background-color: #1F2937 !important;
+                border: 1px solid #374151 !important;
+            }
+            
+            .bg-gray-700 {
+                background-color: #374151 !important;
+                border: 1px solid #4B5563 !important;
+            }
+            
+            .text-gray-300 {
+                color: #D1D5DB !important;
+            }
+            
+            .text-gray-400 {
+                color: #9CA3AF !important;
+            }
+            
+            .text-emerald-300 {
+                color: #6EE7B7 !important;
+            }
+            
+            .text-emerald-400 {
+                color: #10B981 !important;
             }
             
             button {
@@ -57,9 +79,9 @@
             }
             
             input {
-                border: 1px solid #ddd !important;
-                background-color: white !important;
-                color: black !important;
+                border: 1px solid #4B5563 !important;
+                background-color: #374151 !important;
+                color: white !important;
             }
         }
     </style>
@@ -148,19 +170,8 @@
           
           // Función para imprimir usando el navegador
           const imprimirCalculadora = () => {
-            // Guardamos el color de fondo original del body
-            const originalBgColor = document.body.style.backgroundColor;
-            
-            // Cambiamos temporalmente el fondo a blanco para imprimir
-            document.body.style.backgroundColor = 'white';
-            
             // Abrimos el diálogo de impresión
             window.print();
-            
-            // Restauramos el color de fondo original
-            setTimeout(() => {
-              document.body.style.backgroundColor = originalBgColor;
-            }, 100);
           };
           
           // Función muy simplificada para exportar a PDF
@@ -185,8 +196,8 @@
             <div id="calculadora-para-pdf" className="flex flex-col items-center w-full max-w-4xl mx-auto p-6 bg-gray-900 rounded-lg shadow-xl">
               {/* Eliminamos los estilos de impresión que podrían estar causando problemas */}
               
-              <div className="w-full flex flex-col md:flex-row justify-between items-start md:items-center mb-4">
-                <h1 className="text-2xl font-bold text-emerald-400 mb-2 md:mb-0">Calculadora de Billetes y Monedas</h1>
+              <div className="w-full flex flex-col md:flex-row justify-between items-start md:items-center mb-5">
+                <h1 className="text-2xl font-bold text-emerald-400 mb-4 md:mb-0 md:mr-4">Calculadora de Billetes y Monedas</h1>
                 <div className="text-gray-400 text-right bg-gray-800 p-2 rounded-lg border border-gray-700">
                   <div className="text-sm">Fecha:</div>
                   <div className="font-medium">{fechaActual}</div>
@@ -243,18 +254,12 @@
 
               <div className="w-full mt-4 bg-gray-800 p-3 rounded-lg shadow-md border border-gray-700">
                 <div className="flex flex-col md:flex-row justify-between items-start md:items-center">
-                  <div className="flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-3 mb-4 md:mb-0">
+                  <div className="flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-3 mb-4 md:mb-0 md:mr-6">
                     <button
                       onClick={reiniciar}
                       className="px-5 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-opacity-50 w-full sm:w-auto"
                     >
                       Reiniciar
-                    </button>
-                    <button
-                      onClick={exportarPDF}
-                      className="px-5 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 flex items-center justify-center w-full sm:w-auto"
-                    >
-                      <span>Exportar PDF</span>
                     </button>
                     <button
                       onClick={imprimirCalculadora}
