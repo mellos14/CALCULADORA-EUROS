@@ -1,208 +1,234 @@
 <!DOCTYPE html>
 <html lang="es">
-
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Calculadora de Euros</title>
-
-  <!-- Tailwind CSS desde CDN -->
-  <script src="https://cdn.tailwindcss.com"></script>
-
-  <!-- React desde CDN -->
-  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-
-  <!-- Babel para JSX -->
-  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-
-  <!-- HTML2PDF para exportar a PDF -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora de Euros</title>
+    
+    <!-- Tailwind CSS desde CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- React desde CDN -->
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    
+    <!-- Babel para JSX -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    
+    <!-- HTML2PDF para exportar a PDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 </head>
-
 <body class="bg-black min-h-screen flex items-center justify-center p-4">
-  <div id="root"></div>
+    <div id="root"></div>
 
-  <!-- Código de la calculadora -->
-  <script type="text/babel">
-    const { useState, useEffect } = React;
+    <!-- Código de la calculadora -->
+    <script type="text/babel">
+        const { useState, useEffect } = React;
 
-    const CalculadoraBilletesMonedas = () => {
-      // Definimos los billetes y monedas de Euro
-      const denominaciones = [
-        { valor: 100, tipo: 'billete', nombre: '100€' },
-        { valor: 50, tipo: 'billete', nombre: '50€' },
-        { valor: 20, tipo: 'billete', nombre: '20€' },
-        { valor: 10, tipo: 'billete', nombre: '10€' },
-        { valor: 5, tipo: 'billete', nombre: '5€' },
-        { valor: 2, tipo: 'moneda', nombre: '2€' },
-        { valor: 1, tipo: 'moneda', nombre: '1€' },
-        { valor: 0.5, tipo: 'moneda', nombre: '50c' },
-        { valor: 0.2, tipo: 'moneda', nombre: '20c' },
-        { valor: 0.1, tipo: 'moneda', nombre: '10c' },
-        { valor: 0.05, tipo: 'moneda', nombre: '5c' },
-        { valor: 0.02, tipo: 'moneda', nombre: '2c' },
-        { valor: 0.01, tipo: 'moneda', nombre: '1c' },
-      ];
+        const CalculadoraBilletesMonedas = () => {
+          // Definimos los billetes y monedas de Euro
+          const denominaciones = [
+            { valor: 100, tipo: 'billete', nombre: '100€' },
+            { valor: 50, tipo: 'billete', nombre: '50€' },
+            { valor: 20, tipo: 'billete', nombre: '20€' },
+            { valor: 10, tipo: 'billete', nombre: '10€' },
+            { valor: 5, tipo: 'billete', nombre: '5€' },
+            { valor: 2, tipo: 'moneda', nombre: '2€' },
+            { valor: 1, tipo: 'moneda', nombre: '1€' },
+            { valor: 0.5, tipo: 'moneda', nombre: '50c' },
+            { valor: 0.2, tipo: 'moneda', nombre: '20c' },
+            { valor: 0.1, tipo: 'moneda', nombre: '10c' },
+            { valor: 0.05, tipo: 'moneda', nombre: '5c' },
+            { valor: 0.02, tipo: 'moneda', nombre: '2c' },
+            { valor: 0.01, tipo: 'moneda', nombre: '1c' },
+          ];
 
-      // Estado para almacenar las cantidades ingresadas para cada denominación
-      const [cantidades, setCantidades] = useState(
-        denominaciones.reduce((acc, denominacion) => {
-          acc[denominacion.valor] = 0;
-          return acc;
-        }, {})
-      );
+          // Estado para almacenar las cantidades ingresadas para cada denominación
+          const [cantidades, setCantidades] = useState(
+            denominaciones.reduce((acc, denominacion) => {
+              acc[denominacion.valor] = '';
+              return acc;
+            }, {})
+          );
 
-      // Estado para almacenar el total calculado
-      const [total, setTotal] = useState(0);
+          // Estado para almacenar el total calculado
+          const [total, setTotal] = useState(0);
+          
+          // Obtener la fecha actual formateada
+          const fechaActual = new Intl.DateTimeFormat('es-ES', {
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+          }).format(new Date());
 
-      // Obtener la fecha actual formateada
-      const fechaActual = new Intl.DateTimeFormat('es-ES', {
-        day: '2-digit',
-        month: '2-digit',
-        year: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit'
-      }).format(new Date());
+          // Función para actualizar la cantidad de una denominación
+          const actualizarCantidad = (valor, cantidad) => {
+            setCantidades({
+              ...cantidades,
+              [valor]: cantidad
+            });
+          };
 
-      // Función para actualizar la cantidad de una denominación
-      const actualizarCantidad = (valor, cantidad) => {
-        setCantidades({
-          ...cantidades,
-          [valor]: parseInt(cantidad) || 0
-        });
-      };
+          // Calcular el total cuando cambian las cantidades
+          useEffect(() => {
+            let nuevoTotal = 0;
+            for (const [valor, cantidad] of Object.entries(cantidades)) {
+              const cantidadNumerica = cantidad === '' ? 0 : parseInt(cantidad);
+              nuevoTotal += parseFloat(valor) * cantidadNumerica;
+            }
+            setTotal(nuevoTotal);
+          }, [cantidades]);
 
-      // Calcular el total cuando cambian las cantidades
-      useEffect(() => {
-        let nuevoTotal = 0;
-        for (const [valor, cantidad] of Object.entries(cantidades)) {
-          nuevoTotal += parseFloat(valor) * cantidad;
-        }
-        setTotal(nuevoTotal);
-      }, [cantidades]);
+          // Función para reiniciar todos los valores
+          const reiniciar = () => {
+            setCantidades(
+              denominaciones.reduce((acc, denominacion) => {
+                acc[denominacion.valor] = '';
+                return acc;
+              }, {})
+            );
+          };
 
-      // Función para reiniciar todos los valores
-      const reiniciar = () => {
-        setCantidades(
-          denominaciones.reduce((acc, denominacion) => {
-            acc[denominacion.valor] = 0;
-            return acc;
-          }, {})
-        );
-      };
+          // Formatear número a moneda (Euro)
+          const formatearMoneda = (valor) => {
+            return new Intl.NumberFormat('es-ES', {
+              style: 'currency',
+              currency: 'EUR',
+              minimumFractionDigits: 2
+            }).format(valor);
+          };
+          
+          // Función para exportar a PDF
+          const exportarPDF = () => {
+            const elemento = document.getElementById('calculadora-para-pdf');
+            
+            // Ajustes para mejor calidad en PDF
+            const opciones = {
+              margin: [15, 15, 15, 15],
+              filename: `Calculadora_Euros_${new Date().toISOString().slice(0, 10)}.pdf`,
+              image: { type: 'jpeg', quality: 0.98 },
+              html2canvas: { 
+                scale: 2,
+                useCORS: true,
+                letterRendering: true,
+                logging: false
+              },
+              jsPDF: { 
+                unit: 'mm', 
+                format: 'a4', 
+                orientation: 'portrait',
+                compress: true
+              }
+            };
+            
+            // Notificación antes de generar el PDF
+            alert('Generando PDF, por favor espere...');
+            
+            // Generar y guardar el PDF
+            html2pdf()
+              .set(opciones)
+              .from(elemento)
+              .save()
+              .catch(err => console.error('Error al generar PDF:', err));
+          };
 
-      // Formatear número a moneda (Euro)
-      const formatearMoneda = (valor) => {
-        return new Intl.NumberFormat('es-ES', {
-          style: 'currency',
-          currency: 'EUR',
-          minimumFractionDigits: 2
-        }).format(valor);
-      };
+          return (
+            <div id="calculadora-para-pdf" className="flex flex-col items-center w-full max-w-4xl mx-auto p-8 bg-gray-900 rounded-lg shadow-xl print:bg-white print:text-black">
+              <style type="text/css" media="print">
+                {`
+                  @page { size: auto; margin: 15mm; }
+                  body { background-color: white; }
+                  .print-friendly { color: black; background-color: white; }
+                `}
+              </style>
+              
+              <div className="w-full flex flex-col md:flex-row justify-between items-start md:items-center mb-8">
+                <h1 className="text-3xl font-bold text-emerald-400 mb-4 md:mb-0">Calculadora de Billetes y Monedas</h1>
+                <div className="text-gray-400 text-right bg-gray-800 p-3 rounded-lg border border-gray-700">
+                  <div className="text-sm">Fecha:</div>
+                  <div className="font-medium">{fechaActual}</div>
+                </div>
+              </div>
+              
+              <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div className="bg-gray-800 p-5 rounded-lg shadow-md border border-gray-700">
+                  <h2 className="text-xl font-semibold mb-5 text-emerald-300 border-b border-gray-700 pb-2">Billetes</h2>
+                  <div className="space-y-4">
+                    {denominaciones
+                      .filter(d => d.tipo === 'billete')
+                      .map(denominacion => (
+                        <div key={denominacion.valor} className="flex items-center justify-between">
+                          <div className="flex items-center">
+                            <span className="w-16 font-medium text-gray-300">{denominacion.nombre}</span>
+                            <span className="text-sm text-gray-500 ml-2">×</span>
+                          </div>
+                          <input
+                            type="number"
+                            min="0"
+                            value={cantidades[denominacion.valor]}
+                            onChange={(e) => actualizarCantidad(denominacion.valor, e.target.value)}
+                            className="w-20 p-2 bg-gray-700 border border-gray-600 rounded text-right text-white focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                          />
+                        </div>
+                      ))}
+                  </div>
+                </div>
 
-      // Función para exportar a PDF
-      const exportarPDF = () => {
-        const elemento = document.getElementById('calculadora-para-pdf');
-        const opciones = {
-          margin: 10,
-          filename: `Calculadora_Euros_${new Date().toISOString().slice(0, 10)}.pdf`,
-          image: { type: 'jpeg', quality: 0.98 },
-          html2canvas: { scale: 2 },
-          jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+                <div className="bg-gray-800 p-5 rounded-lg shadow-md border border-gray-700">
+                  <h2 className="text-xl font-semibold mb-5 text-emerald-300 border-b border-gray-700 pb-2">Monedas</h2>
+                  <div className="space-y-4">
+                    {denominaciones
+                      .filter(d => d.tipo === 'moneda')
+                      .map(denominacion => (
+                        <div key={denominacion.valor} className="flex items-center justify-between">
+                          <div className="flex items-center">
+                            <span className="w-16 font-medium text-gray-300">{denominacion.nombre}</span>
+                            <span className="text-sm text-gray-500 ml-2">×</span>
+                          </div>
+                          <input
+                            type="number"
+                            min="0"
+                            value={cantidades[denominacion.valor]}
+                            onChange={(e) => actualizarCantidad(denominacion.valor, e.target.value)}
+                            className="w-20 p-2 bg-gray-700 border border-gray-600 rounded text-right text-white focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                          />
+                        </div>
+                      ))}
+                  </div>
+                </div>
+              </div>
+
+              <div className="w-full mt-8 bg-gray-800 p-5 rounded-lg shadow-md border border-gray-700">
+                <div className="flex flex-col md:flex-row justify-between items-start md:items-center">
+                  <div className="flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-3 mb-4 md:mb-0">
+                    <button
+                      onClick={reiniciar}
+                      className="px-5 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-opacity-50 w-full sm:w-auto"
+                    >
+                      Reiniciar
+                    </button>
+                    <button
+                      onClick={exportarPDF}
+                      className="px-5 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 flex items-center justify-center w-full sm:w-auto"
+                    >
+                      <span>Exportar PDF</span>
+                    </button>
+                  </div>
+                  <div className="text-right bg-gray-700 p-3 rounded-lg border border-gray-600 w-full md:w-auto">
+                    <div className="text-sm text-gray-400">Total:</div>
+                    <div className="text-3xl font-bold text-emerald-400">{formatearMoneda(total)}</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          );
         };
 
-        html2pdf().set(opciones).from(elemento).save();
-      };
-
-      return (
-        <div id="calculadora-para-pdf" className="flex flex-col items-center w-full max-w-4xl mx-auto p-6 bg-gray-900 rounded-lg shadow-xl">
-          <div className="w-full flex justify-between items-center mb-6">
-            <h1 className="text-3xl font-bold text-emerald-400">Calculadora de Billetes y Monedas</h1>
-            <div className="text-gray-400 text-right">
-              <div className="text-sm">Fecha:</div>
-              <div className="font-medium">{fechaActual}</div>
-            </div>
-          </div>
-
-          <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-8">
-            <div className="bg-gray-800 p-5 rounded-lg shadow-md border border-gray-700">
-              <h2 className="text-xl font-semibold mb-5 text-emerald-300 border-b border-gray-700 pb-2">Billetes</h2>
-              <div className="space-y-4">
-                {denominaciones
-                  .filter(d => d.tipo === 'billete')
-                  .map(denominacion => (
-                    <div key={denominacion.valor} className="flex items-center justify-between">
-                      <div className="flex items-center">
-                        <span className="w-16 font-medium text-gray-300">{denominacion.nombre}</span>
-                        <span className="text-sm text-gray-500 ml-2">×</span>
-                      </div>
-                      <input
-                        type="number"
-                        min="0"
-                        value={cantidades[denominacion.valor]}
-                        onChange={(e) => actualizarCantidad(denominacion.valor, e.target.value)}
-                        className="w-20 p-2 bg-gray-700 border border-gray-600 rounded text-right text-white focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
-                      />
-                    </div>
-                  ))}
-              </div>
-            </div>
-
-            <div className="bg-gray-800 p-5 rounded-lg shadow-md border border-gray-700">
-              <h2 className="text-xl font-semibold mb-5 text-emerald-300 border-b border-gray-700 pb-2">Monedas</h2>
-              <div className="space-y-4">
-                {denominaciones
-                  .filter(d => d.tipo === 'moneda')
-                  .map(denominacion => (
-                    <div key={denominacion.valor} className="flex items-center justify-between">
-                      <div className="flex items-center">
-                        <span className="w-16 font-medium text-gray-300">{denominacion.nombre}</span>
-                        <span className="text-sm text-gray-500 ml-2">×</span>
-                      </div>
-                      <input
-                        type="number"
-                        min="0"
-                        value={cantidades[denominacion.valor]}
-                        onChange={(e) => actualizarCantidad(denominacion.valor, e.target.value)}
-                        className="w-20 p-2 bg-gray-700 border border-gray-600 rounded text-right text-white focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
-                      />
-                    </div>
-                  ))}
-              </div>
-            </div>
-          </div>
-
-          <div className="w-full mt-8 bg-gray-800 p-5 rounded-lg shadow-md border border-gray-700">
-            <div className="flex justify-between items-center">
-              <div className="flex space-x-3">
-                <button
-                  onClick={reiniciar}
-                  className="px-5 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-opacity-50"
-                >
-                  Reiniciar
-                </button>
-                <button
-                  onClick={exportarPDF}
-                  className="px-5 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 flex items-center"
-                >
-                  <span>Exportar PDF</span>
-                </button>
-              </div>
-              <div className="text-right">
-                <div className="text-sm text-gray-400">Total:</div>
-                <div className="text-3xl font-bold text-emerald-400">{formatearMoneda(total)}</div>
-              </div>
-            </div>
-          </div>
-        </div>
-      );
-    };
-
-    // Renderizar la aplicación
-    const root = ReactDOM.createRoot(document.getElementById('root'));
-    root.render(<CalculadoraBilletesMonedas />);
-  </script>
+        // Renderizar la aplicación
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<CalculadoraBilletesMonedas />);
+    </script>
 </body>
-
 </html>
