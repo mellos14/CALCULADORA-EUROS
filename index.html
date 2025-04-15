@@ -104,13 +104,13 @@
           const exportarPDF = () => {
             const elemento = document.getElementById('calculadora-para-pdf');
             
-            // Ajustes para mejor calidad en PDF
+            // Ajustes para asegurar que quepa en una sola página
             const opciones = {
-              margin: [15, 15, 15, 15],
+              margin: [10, 10, 10, 10],
               filename: `Calculadora_Euros_${new Date().toISOString().slice(0, 10)}.pdf`,
-              image: { type: 'jpeg', quality: 0.98 },
+              image: { type: 'jpeg', quality: 0.95 },
               html2canvas: { 
-                scale: 2,
+                scale: 1, // Escala más baja para asegurar que quepa todo
                 useCORS: true,
                 letterRendering: true,
                 logging: false
@@ -120,7 +120,8 @@
                 format: 'a4', 
                 orientation: 'portrait',
                 compress: true
-              }
+              },
+              pagebreak: { mode: 'avoid-all' } // Evitar saltos de página
             };
             
             // Notificación antes de generar el PDF
@@ -135,27 +136,33 @@
           };
 
           return (
-            <div id="calculadora-para-pdf" className="flex flex-col items-center w-full max-w-4xl mx-auto p-8 bg-gray-900 rounded-lg shadow-xl print:bg-white print:text-black">
+            <div id="calculadora-para-pdf" className="flex flex-col items-center w-full max-w-4xl mx-auto p-6 bg-gray-900 rounded-lg shadow-xl print:bg-white print:text-black">
               <style type="text/css" media="print">
                 {`
-                  @page { size: auto; margin: 15mm; }
+                  @page { size: A4; margin: 10mm; }
                   body { background-color: white; }
                   .print-friendly { color: black; background-color: white; }
+                  /* Ajustar tamaño para impresión */
+                  input, button { print-color-adjust: exact; -webkit-print-color-adjust: exact; }
+                  @media print {
+                    html, body { height: 99%; }
+                    * { font-size: 95%; }
+                  }
                 `}
               </style>
               
-              <div className="w-full flex flex-col md:flex-row justify-between items-start md:items-center mb-8">
-                <h1 className="text-3xl font-bold text-emerald-400 mb-4 md:mb-0">Calculadora de Billetes y Monedas</h1>
-                <div className="text-gray-400 text-right bg-gray-800 p-3 rounded-lg border border-gray-700">
+              <div className="w-full flex flex-col md:flex-row justify-between items-start md:items-center mb-4">
+                <h1 className="text-2xl font-bold text-emerald-400 mb-2 md:mb-0">Calculadora de Billetes y Monedas</h1>
+                <div className="text-gray-400 text-right bg-gray-800 p-2 rounded-lg border border-gray-700">
                   <div className="text-sm">Fecha:</div>
                   <div className="font-medium">{fechaActual}</div>
                 </div>
               </div>
               
-              <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-8">
-                <div className="bg-gray-800 p-5 rounded-lg shadow-md border border-gray-700">
-                  <h2 className="text-xl font-semibold mb-5 text-emerald-300 border-b border-gray-700 pb-2">Billetes</h2>
-                  <div className="space-y-4">
+              <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="bg-gray-800 p-3 rounded-lg shadow-md border border-gray-700">
+                  <h2 className="text-lg font-semibold mb-3 text-emerald-300 border-b border-gray-700 pb-1">Billetes</h2>
+                  <div className="space-y-2">
                     {denominaciones
                       .filter(d => d.tipo === 'billete')
                       .map(denominacion => (
@@ -176,9 +183,9 @@
                   </div>
                 </div>
 
-                <div className="bg-gray-800 p-5 rounded-lg shadow-md border border-gray-700">
-                  <h2 className="text-xl font-semibold mb-5 text-emerald-300 border-b border-gray-700 pb-2">Monedas</h2>
-                  <div className="space-y-4">
+                <div className="bg-gray-800 p-3 rounded-lg shadow-md border border-gray-700">
+                  <h2 className="text-lg font-semibold mb-3 text-emerald-300 border-b border-gray-700 pb-1">Monedas</h2>
+                  <div className="space-y-2">
                     {denominaciones
                       .filter(d => d.tipo === 'moneda')
                       .map(denominacion => (
@@ -200,7 +207,7 @@
                 </div>
               </div>
 
-              <div className="w-full mt-8 bg-gray-800 p-5 rounded-lg shadow-md border border-gray-700">
+              <div className="w-full mt-4 bg-gray-800 p-3 rounded-lg shadow-md border border-gray-700">
                 <div className="flex flex-col md:flex-row justify-between items-start md:items-center">
                   <div className="flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-3 mb-4 md:mb-0">
                     <button
