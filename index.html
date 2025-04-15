@@ -17,6 +17,52 @@
     
     <!-- Revertimos a html2pdf original que es más confiable -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    
+    <!-- Estilos de impresión -->
+    <style type="text/css">
+        @media print {
+            body {
+                background-color: white !important;
+                padding: 0;
+                margin: 0;
+            }
+            
+            #calculadora-para-pdf {
+                background-color: white !important;
+                color: black !important;
+                box-shadow: none !important;
+                border: none !important;
+                width: 100% !important;
+                max-width: 100% !important;
+                padding: 10mm !important;
+                margin: 0 !important;
+            }
+            
+            h1, h2 {
+                color: #333 !important;
+                border-color: #ddd !important;
+            }
+            
+            .bg-gray-800, .bg-gray-700, .bg-gray-900 {
+                background-color: white !important;
+                border: 1px solid #ddd !important;
+            }
+            
+            .text-gray-300, .text-gray-400, .text-emerald-300, .text-emerald-400 {
+                color: #333 !important;
+            }
+            
+            button {
+                display: none !important;
+            }
+            
+            input {
+                border: 1px solid #ddd !important;
+                background-color: white !important;
+                color: black !important;
+            }
+        }
+    </style>
 </head>
 <body class="bg-black min-h-screen flex items-center justify-center p-4">
     <div id="root"></div>
@@ -98,6 +144,23 @@
               currency: 'EUR',
               minimumFractionDigits: 2
             }).format(valor);
+          };
+          
+          // Función para imprimir usando el navegador
+          const imprimirCalculadora = () => {
+            // Guardamos el color de fondo original del body
+            const originalBgColor = document.body.style.backgroundColor;
+            
+            // Cambiamos temporalmente el fondo a blanco para imprimir
+            document.body.style.backgroundColor = 'white';
+            
+            // Abrimos el diálogo de impresión
+            window.print();
+            
+            // Restauramos el color de fondo original
+            setTimeout(() => {
+              document.body.style.backgroundColor = originalBgColor;
+            }, 100);
           };
           
           // Función muy simplificada para exportar a PDF
@@ -192,6 +255,12 @@
                       className="px-5 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 flex items-center justify-center w-full sm:w-auto"
                     >
                       <span>Exportar PDF</span>
+                    </button>
+                    <button
+                      onClick={imprimirCalculadora}
+                      className="px-5 py-2 bg-purple-600 text-white rounded hover:bg-purple-700 transition focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-opacity-50 flex items-center justify-center w-full sm:w-auto"
+                    >
+                      <span>Imprimir</span>
                     </button>
                   </div>
                   <div className="text-right bg-gray-700 p-3 rounded-lg border border-gray-600 w-full md:w-auto">
