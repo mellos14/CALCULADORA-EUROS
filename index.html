@@ -108,23 +108,32 @@
             alert('Generando PDF, por favor espere...');
             
             // Configuración más simple, enfocada en capturar toda la imagen
-            const opt = {
-              margin: 0,
-              filename: `Calculadora_Euros_${new Date().toISOString().slice(0, 10)}.pdf`,
-              image: { type: 'jpeg', quality: 1 },
-              html2canvas: { 
-                scale: 1,
-                useCORS: true,
-                scrollY: 0,
-                windowWidth: elemento.offsetWidth,
-                windowHeight: elemento.offsetHeight
-              },
-              jsPDF: { 
-                format: [elemento.offsetWidth * 0.75, elemento.offsetHeight * 0.75],
-                orientation: 'portrait',
-                unit: 'px'
-              }
-            };
+          const opt = {
+          margin: 0,
+          filename: `Calculadora_Euros_${new Date().toISOString().slice(0, 10)}.pdf`,
+          image: { 
+            type: 'jpeg', 
+            quality: 1 
+          },
+          html2canvas: {
+            scale: 1,
+            useCORS: true,
+            scrollY: 0,
+            windowWidth: elemento.offsetWidth,
+            windowHeight: elemento.offsetHeight,
+            // Añadir estas opciones para mejor precisión
+            logging: false,
+            letterRendering: true,
+            allowTaint: true
+          },
+          jsPDF: {
+            // Convertir píxeles a milímetros (mejor para PDF)
+            format: [elemento.offsetWidth * 0.264583, elemento.offsetHeight * 0.264583],
+            orientation: elemento.offsetWidth > elemento.offsetHeight ? 'landscape' : 'portrait',
+            unit: 'mm', // Usar milímetros es más estándar para PDF
+            hotfixes: ['px_scaling'] // Soluciona problemas de escala
+          }
+        };
             
             // Generar y guardar el PDF
             html2pdf().set(opt).from(elemento).save();
