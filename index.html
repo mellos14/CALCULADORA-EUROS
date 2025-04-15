@@ -107,29 +107,35 @@
             // Notificación antes de generar el PDF
             alert('Generando PDF, por favor espere...');
             
-            // Configuración simplificada para capturar como imagen
-            html2pdf()
-              .from(elemento)
-              .set({
-                margin: 1,
-                filename: `Calculadora_Euros_${new Date().toISOString().slice(0, 10)}.pdf`,
-                image: { type: 'jpeg', quality: 1 },
-                html2canvas: { scale: window.innerWidth < 768 ? 1 : 2 }, // Escala según dispositivo
-                jsPDF: { 
-                  unit: 'mm', 
-                  format: 'a4', 
-                  orientation: 'portrait'
-                }
-              })
-              .save();
+            // Configuración más simple, enfocada en capturar toda la imagen
+            const opt = {
+              margin: 0,
+              filename: `Calculadora_Euros_${new Date().toISOString().slice(0, 10)}.pdf`,
+              image: { type: 'jpeg', quality: 1 },
+              html2canvas: { 
+                scale: 1,
+                useCORS: true,
+                scrollY: 0,
+                windowWidth: elemento.offsetWidth,
+                windowHeight: elemento.offsetHeight
+              },
+              jsPDF: { 
+                format: [elemento.offsetWidth * 0.75, elemento.offsetHeight * 0.75],
+                orientation: 'portrait',
+                unit: 'px'
+              }
+            };
+            
+            // Generar y guardar el PDF
+            html2pdf().set(opt).from(elemento).save();
           };
 
           return (
             <div id="calculadora-para-pdf" className="flex flex-col items-center w-full max-w-4xl mx-auto p-6 bg-gray-900 rounded-lg shadow-xl">
-               {/* Eliminamos los estilos de impresión que podrían estar causando problemas */}
+              {/* Eliminamos los estilos de impresión que podrían estar causando problemas */}
               
               <div className="w-full flex flex-col md:flex-row justify-between items-start md:items-center mb-4">
-                <h1 className="text-2xl font-bold text-emerald-300 mb-2 md:mb-0">Calculadora de Billetes y Monedas</h1>
+                <h1 className="text-2xl font-bold text-emerald-400 mb-2 md:mb-0">Calculadora de Billetes y Monedas</h1>
                 <div className="text-gray-400 text-right bg-gray-800 p-2 rounded-lg border border-gray-700">
                   <div className="text-sm">Fecha:</div>
                   <div className="font-medium">{fechaActual}</div>
