@@ -15,8 +15,9 @@
     <!-- Babel para JSX -->
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     
-    <!-- HTML2PDF para exportar a PDF -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <!-- HTML2PDF y dependencias para exportar a PDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </head>
 <body class="bg-black min-h-screen flex items-center justify-center p-4">
     <div id="root"></div>
@@ -100,43 +101,38 @@
             }).format(valor);
           };
           
-          // Función para exportar a PDF
+          // Función alternativa para exportar a PDF usando html2canvas directamente
           const exportarPDF = () => {
             const elemento = document.getElementById('calculadora-para-pdf');
             
             // Notificación antes de generar el PDF
             alert('Generando PDF, por favor espere...');
             
-            // Configuración más simple, enfocada en capturar toda la imagen
-          const opt = {
-          margin: 0,
-          filename: `Calculadora_Euros_${new Date().toISOString().slice(0, 10)}.pdf`,
-          image: { 
-            type: 'jpeg', 
-            quality: 1 
-          },
-          html2canvas: {
-            scale: 1,
-            useCORS: true,
-            scrollY: 0,
-            windowWidth: elemento.offsetWidth,
-            windowHeight: elemento.offsetHeight,
-            // Añadir estas opciones para mejor precisión
-            logging: false,
-            letterRendering: true,
-            allowTaint: true
-          },
-          jsPDF: {
-            // Convertir píxeles a milímetros (mejor para PDF)
-            format: [elemento.offsetWidth * 0.264583, elemento.offsetHeight * 0.264583],
-            orientation: elemento.offsetWidth > elemento.offsetHeight ? 'landscape' : 'portrait',
-            unit: 'mm', // Usar milímetros es más estándar para PDF
-            hotfixes: ['px_scaling'] // Soluciona problemas de escala
-          }
-        };
+            // Importamos html2canvas desde el objeto global
+            const html2canvas = window.html2canvas;
+            const jsPDF = window.jspdf.jsPDF;
             
-            // Generar y guardar el PDF
-            html2pdf().set(opt).from(elemento).save();
+            // Usamos html2canvas directamente para tener más control
+            html2canvas(elemento, {
+              scale: 2,
+              useCORS: true,
+              allowTaint: true,
+              scrollY: -window.scrollY
+            }).then(canvas => {
+              // Creamos el PDF con el tamaño exacto del canvas
+              const imgData = canvas.toDataURL('image/jpeg', 1.0);
+              const pdf = new jsPDF({
+                orientation: 'portrait',
+                unit: 'px',
+                format: [canvas.width, canvas.height]
+              });
+              
+              // Agregamos la imagen al PDF con el tamaño completo
+              pdf.addImage(imgData, 'JPEG', 0, 0, canvas.width, canvas.height);
+              
+              // Guardamos el PDF
+              pdf.save(`Calculadora_Euros_${new Date().toISOString().slice(0, 10)}.pdf`);
+            });
           };
 
           return (
