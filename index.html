@@ -18,75 +18,76 @@
     <!-- Revertimos a html2pdf original que es más confiable -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     
-    <!-- Estilos de impresión con colores preservados -->
+    <!-- Estilos de impresión optimizados para móviles y escritorio -->
     <style type="text/css">
+        /* Estilos base para móviles y escritorio */
         @media print {
             @page {
-                size: auto;
+                size: portrait;
                 margin: 0;
             }
             
-            body {
-                background-color: #111827 !important; /* Mismo color que bg-gray-900 */
-                padding: 0;
-                margin: 0;
+            * {
                 -webkit-print-color-adjust: exact !important;
                 print-color-adjust: exact !important;
                 color-adjust: exact !important;
             }
             
+            html, body {
+                width: 100%;
+                height: 100%;
+                margin: 0;
+                padding: 0;
+                background-color: #111827 !important;
+            }
+            
+            /* Optimizaciones para condensar el contenido */
             #calculadora-para-pdf {
-                background-color: #111827 !important; /* Mismo color que bg-gray-900 */
-                box-shadow: none !important;
-                width: 100% !important;
-                max-width: 100% !important;
-                padding: 10mm !important;
-                margin: 0 !important;
+                padding: 5mm !important;
+                transform: scale(0.9) !important;
+                transform-origin: top center !important;
+                max-height: 100% !important;
+                overflow: visible !important;
+                page-break-inside: avoid !important;
+                background-color: #111827 !important;
             }
             
-            h1 {
-                color: #10B981 !important; /* Color emerald-400 */
+            .print-grid {
+                display: grid !important;
+                grid-template-columns: 1fr 1fr !important;
+                gap: 3mm !important;
             }
             
-            h2 {
-                color: #6EE7B7 !important; /* Color emerald-300 */
-                border-color: #374151 !important; /* Color gray-700 */
-            }
+            /* Reducción de tamaños y espaciados para móviles */
+            h1 { font-size: 18px !important; }
+            h2 { font-size: 16px !important; }
+            input { height: 28px !important; }
             
-            .bg-gray-800 {
-                background-color: #1F2937 !important;
+            /* Colores forzados */
+            .bg-gray-900, .bg-gray-800, .bg-gray-700 {
+                background-color: #111827 !important;
                 border: 1px solid #374151 !important;
             }
             
-            .bg-gray-700 {
-                background-color: #374151 !important;
-                border: 1px solid #4B5563 !important;
+            /* Texto */
+            .text-emerald-400 { color: #10B981 !important; }
+            .text-emerald-300 { color: #6EE7B7 !important; }
+            .text-gray-300, .text-gray-400, .text-white { color: white !important; }
+            
+            /* Ocultar elementos no necesarios */
+            button { display: none !important; }
+        }
+        
+        /* Estilos específicos para móviles */
+        @media print and (max-width: 480px) {
+            #calculadora-para-pdf {
+                transform: scale(0.8) !important;
+                padding: 3mm !important;
             }
             
-            .text-gray-300 {
-                color: #D1D5DB !important;
-            }
-            
-            .text-gray-400 {
-                color: #9CA3AF !important;
-            }
-            
-            .text-emerald-300 {
-                color: #6EE7B7 !important;
-            }
-            
-            .text-emerald-400 {
-                color: #10B981 !important;
-            }
-            
-            button {
-                display: none !important;
-            }
-            
-            input {
-                border: 1px solid #4B5563 !important;
-                background-color: #374151 !important;
-                color: white !important;
+            .space-y-2 > * {
+                margin-top: 0 !important;
+                margin-bottom: 1mm !important;
             }
         }
     </style>
@@ -175,6 +176,14 @@
           
           // Función para imprimir usando el navegador
           const imprimirCalculadora = () => {
+            // Configuramos un Media Query para detectar si estamos en móvil
+            const esMobile = window.matchMedia('(max-width: 768px)').matches;
+            
+            // Notificación para dispositivos móviles
+            if (esMobile) {
+              alert("En dispositivos móviles, al imprimir selecciona 'Adaptarse' o 'Ajustar a página' en las opciones de impresión para evitar múltiples páginas.");
+            }
+            
             // Abrimos el diálogo de impresión
             window.print();
           };
@@ -198,7 +207,7 @@
           };
 
           return (
-            <div id="calculadora-para-pdf" className="flex flex-col items-center w-full max-w-4xl mx-auto p-6 bg-gray-900 rounded-lg shadow-xl">
+            <div id="calculadora-para-pdf" className="flex flex-col items-center w-full max-w-4xl mx-auto p-6 bg-gray-900 rounded-lg shadow-xl print:p-2">
               {/* Eliminamos los estilos de impresión que podrían estar causando problemas */}
               
               <div className="w-full flex flex-col md:flex-row justify-between items-start md:items-center mb-5">
@@ -209,7 +218,7 @@
                 </div>
               </div>
               
-              <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-4 print-grid">
                 <div className="bg-gray-800 p-3 rounded-lg shadow-md border border-gray-700">
                   <h2 className="text-lg font-semibold mb-3 text-emerald-300 border-b border-gray-700 pb-1">Billetes</h2>
                   <div className="space-y-2">
